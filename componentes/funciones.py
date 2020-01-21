@@ -4,7 +4,8 @@
 ### FUNCIONES VARIAS V 1.1                               ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 13/01/2020                                           ###
+### 21/01/2020                                           ###
+### Funcion Windows o Linux                              ###
 ### Funcion Path_Actual                                  ###
 ############################################################
 import os
@@ -38,3 +39,10 @@ def Val_to_text(valor, caracteres):
 def Path_Actual(Parametro__file__):
     # enviar solo variable __file__ sin ningun elemento
     return os.path.dirname(Parametro__file__)
+
+def Windows():
+    # retorna si el sistema operativo es windows
+    if os.name == 'nt':
+        return True
+    else:
+        return False

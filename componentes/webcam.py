@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### Clase WEBCAM V1.0                                   ###
+### Clase WEBCAM V1.1                                   ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
 ### 21/01/2020                                          ###
+### Funcionamiento en windows y linux                   ###
 ### Creacion de clase                                   ###
 ###########################################################
 
 import time
 import cv2
 from componentes.thread_admin import ThreadAdmin
+from componentes.funciones import Windows
 
 class Webcam(object):
     def __init__(self):
@@ -33,7 +35,10 @@ class Webcam(object):
 
     def start(self):
         self.log("Inicializando Webcam", "WEBCAM")
-        self.captura = cv2.VideoCapture(self.src, cv2.CAP_DSHOW)
+        if Windows():
+            self.captura = cv2.VideoCapture(self.src, cv2.CAP_DSHOW)
+        else:
+            self.captura = cv2.VideoCapture(self.src)
         self.log("Webcam Inicializada", "WEBCAM")
         (self.procesado, self.frame) = self.captura.read()
         self.activo = True
@@ -47,7 +52,10 @@ class Webcam(object):
         return self.frame
 
     def check(self):
-        self.captura = cv2.VideoCapture(self.src, cv2.CAP_DSHOW)
+        if Windows():
+            self.captura = cv2.VideoCapture(self.src, cv2.CAP_DSHOW)
+        else:
+            self.captura = cv2.VideoCapture(self.src)
         if self.captura.isOpened():
             self.captura.release()
             self.log("Webcam disponible", "WEBCAM")
