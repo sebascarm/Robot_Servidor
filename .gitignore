@@ -1,5 +1,6 @@
+*.pyc
 .vscode/
 entorno/
 ejemplos/
 old/
-__pycache__/
+
