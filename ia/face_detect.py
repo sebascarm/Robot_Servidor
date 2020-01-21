@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### Clase FACE DETECT V2.0                              ###
+### Clase FACE DETECT V2.1                              ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
 ### 21/01/2020                                          ###
+### Utilizacion de clase propia webcam                  ###
 ### Funcion unica devuelve angulo unico                 ###
 ### Clase con Procesos                                  ###
 ### Funciones callback                                  ###
@@ -14,12 +15,13 @@
 
 # import argparse
 import time
-from imutils.video import VideoStream
+#from imutils.video import VideoStream
 import numpy as np
 import imutils
 import cv2
 from componentes.funciones import Path_Actual
 from componentes.thread_admin import ThreadAdmin
+from componentes.webcam import Webcam
 
 import array as arr
 
@@ -30,7 +32,7 @@ class Face_Detect(object):
         self.prob_min       = 0.5   # probabilidad minima de deteccion
         self.log            = self.__log_default
         self.cv             = cv2
-        self.vs             = ''    # video stream
+        self.vs             = Webcam()  # webcam
         self.net            = ''    # red neuronal
         self.frame          = ''    # imagen capturada      
         self.frameshow      = None  # imagen a mostrar
@@ -65,9 +67,8 @@ class Face_Detect(object):
         model = Path_Actual(__file__) + '/face_detect_files/res10_300x300_ssd_iter_140000.caffemodel'
         self.net = self.cv.dnn.readNetFromCaffe(proto, model)
         #
-        self.vs = VideoStream(src=0).start()
-               
-
+        #self.vs.config()
+        
         if self.show:
             self.log("Iniciando video show", "FACE_DETECT")   
             self.th_show.start(self.__th_show,'','FACE_SHOW', callback=self.__callaback_th)    
@@ -88,20 +89,14 @@ class Face_Detect(object):
     def config_log(self, Log):
         #posibilidad de configurar clase Log(Texto, Modulo)
         self.log = Log.log
+        self.vs.config_log(Log)
 
     def check(self, source=0):
-        self.log("Check Camara", "FACE_DETECT")
-        cap = cv2.VideoCapture(source) 
-        self.log("Check Camara...", "FACE_DETECT")
-        if cap is None or not cap.isOpened():
-            self.log("Camara no disponible", "FACE_DETECT")
-            return False
-        else:
-            self.log("Camara OK", "FACE_DETECT")
-            return True
+        return self.vs.check()
 
     def iniciar(self):
         # inicializar video
+        self.vs.start() 
         self.activo = True
         self.log("Iniciando video stream", "FACE_DETECT")
         self.th_detect.start(self.__th_loop,'','FACE_DETECT', callback=self.__callaback_th)
@@ -148,7 +143,9 @@ class Face_Detect(object):
             
             #dibujamos
             self.frameshow = self.frame
-            
+        
+        #fin de streaming
+        self.vs.stop()
         self.log("Fin de streaming", "FACE_DETECT")
     
     def __funcion_unica(self):

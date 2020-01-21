@@ -1,8 +1,9 @@
 *.pyc
 __pycache__
+
 actividad/__pycache__/
-componentes/__pycache__
-comunicacion/__pycache__
+componentes/__pycache__/
+comunicacion/__pycache__/
 ia/__pycache__/
 tests/__pycache__/
 
