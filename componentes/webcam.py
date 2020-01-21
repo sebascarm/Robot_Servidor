@@ -8,8 +8,8 @@
 ### Creacion de clase                                   ###
 ###########################################################
 
-import cv2
 import time
+import cv2
 from componentes.thread_admin import ThreadAdmin
 
 class Webcam(object):
