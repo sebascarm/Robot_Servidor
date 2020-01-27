@@ -26,15 +26,15 @@ def callback_unica(x,y):
 log = Logg()
 
 face = Face_Detect()
-face.config(Resolucion=(320,240),Show=True)
+face.config(Resolucion=(320,240),Show=False)
 face.config_log(log)
-face.config_callback(Func_Unica=callback_unica)
+face.config_callback(Func_Cent_Vista=callback_centrar)
 
 cam = face.check()
 
 if cam:
     face.iniciar()
-    time.sleep(10)
+    time.sleep(100)
     face.stop()
     time.sleep(5)
     

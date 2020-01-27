@@ -146,7 +146,7 @@ class Face_Detect(object):
         
         #fin de streaming
         self.vs.stop()
-        self.log("Fin de streaming", "FACE_DETECT")
+        
     
     def __funcion_unica(self):
         if self.elementos:
