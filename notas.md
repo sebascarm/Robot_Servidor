@@ -107,4 +107,33 @@ pip install opencv-contrib-python
 pip install imutils
 
 ```
+----------------
+Instalar PYGAME
+===============
+```
+sudo pip3 install pygame
 
+```
+
+----------------
+Instalar otros
+===============
+```
+sudo apt-get install libatlas-base-dev
+sudo pip3 install numpy scipy
+sudo pip3 install numpy
+
+sudo apt-get install libhdf5-dev
+sudo apt-get install libhdf5-serial-dev
+
+```
+PIPCONFIG
+
+```
+per-user: $HOME/.config/pip/pip.conf
+global: /etc/pip.conf
+
+# Agregar repositiorio
+[global]
+extra-index-url=https://www.piwheels.org/simple
+```
