@@ -26,7 +26,7 @@ def callback_unica(x,y):
 log = Logg()
 
 face = Face_Detect()
-face.config(Resolucion=(320,240),Show=False)
+face.config(Resolucion=(320,240),Show=True)
 face.config_log(log)
 face.config_callback(Func_Cent_Vista=callback_centrar)
 

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 2.2                             ###
+### SERVIDOR TCP VERSION 3.0                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 04/01/2020                                           ###
+### 27/01/2020                                           ###
+### Posibilidad de enviar datos binarios                 ###
 ### Se cambia la ubicacion del ThreadAdmin               ###
 ### Timeout en escucha para poder cerrar sin bloquear(3s)###
 ### (Ante desconexion por error el mensaje sigue activo) ###
@@ -33,14 +34,16 @@ class Servidor_TCP(object):
         self.th_cola        = ThreadAdmin()
         self.reintento      = 50
         self.sin_ejecucion  = False
+        self.binario        = False # para enviar datos binarios
                     
-    def configuracion(self, Callback, Ip= "127.0.0.1", Puerto=50001, Buffer =1024): # Con parametros opcionales
+    def configuracion(self, Callback, Ip= "127.0.0.1", Puerto=50001, Buffer =1024, Binario=False): # Con parametros opcionales
         self.Ip = Ip
         self.Puerto = Puerto
         self.tam_buffer = Buffer
         self.callback = Callback  #Funcion de rellamada de estados
         #Mensajes de callback: 0 Desconectado| 1 Conectando| 2 Conectado
         # 3 Envio de datos| 4 Recepcion de datos|-1 Error
+        self.binario = Binario # utilizado para enviar imagenes // se debe cambiar el tamaño del buffer
 
     def iniciar(self):
         #self.sin_ejecucion  = False
@@ -126,11 +129,20 @@ class Servidor_TCP(object):
     def enviar(self, mensaje):
         if self.conexion:
             try:
-                cadena = str(mensaje)
-                self.sc.sendall(cadena.encode('utf-8'))
-                self.estado = 3
-                self.cola_codigo.put(self.estado)
-                self.cola_mensaje.put("SEND: " + cadena)
+                if self.binario: # datos binarios // ej: imagenes
+                    datos = pickle.dumps(mensaje) # para datos binarios
+                    self.sc.sendall(struct.pack("H", len(datos))+datos) # tal vez cambiar a L // Large
+                    # Envio de info local
+                    self.estado = 3
+                    self.cola_codigo.put(self.estado)
+                    self.cola_mensaje.put("SEND: DATOS BINARIOS")
+                else:
+                    datos = str(mensaje)
+                    self.sc.sendall(datos.encode('utf-8'))
+                    # Envio de info local
+                    self.estado = 3
+                    self.cola_codigo.put(self.estado)
+                    self.cola_mensaje.put("SEND: " + datos)
             except:
                 self.desconectar()
                 self.estado = -1
