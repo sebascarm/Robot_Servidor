@@ -13,6 +13,7 @@ tcp = Servidor_TCP()
 
 # si es windows
 captura             = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+time.sleep(2)
 procesado, frame    = captura.read()
 captura.release()
 
