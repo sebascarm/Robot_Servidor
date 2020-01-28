@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.1                             ###
+### SERVIDOR TCP VERSION 3.2                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 27/01/2020                                           ###
+### 28/01/2020                                           ###
+### Correcion en cierre de conexion y otros              ###
 ### Reduccion de codigo                                  ###
 ### Posibilidad de enviar datos binarios                 ###
 ### Se cambia la ubicacion del ThreadAdmin               ###
@@ -60,10 +61,10 @@ class Servidor_TCP(object):
     def iniciar(self):
         # control de mensajes si ya se encuentra en ejecucion
         if not self.th_cola.state:
-            self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.callback)
+            self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.__callaback_th)
         # inicio de intento de escucha
         if not self.conexion:
-            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',10, self.callback)
+            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',10, self.__callaback_th)
         else:
             self.__estado(-1,"Conexion actualmente establecida")
             
@@ -78,8 +79,9 @@ class Servidor_TCP(object):
                 if self.estado == -1:
                     intento += 1                # no pudo conectarse
                 if self.estado ==  2:
-                    intento = self.reintento    # conecto pasamos a escuchar y liberamos los reintentos
-                    self.__interno_escuchar()
+                    self.__interno_escuchar() # conecto pasamos a escuchar y liberamos los reintentos
+                    intento = 0
+                    # en cuanto se corta la conexion vuelve a este loop para los reintentos de conexion
         
     # Servidor (intento de conexion)   
     def __intento_conexion(self):
@@ -125,12 +127,20 @@ class Servidor_TCP(object):
                 self.__estado(0, "Cliente Desconectado - Reception error")
         # antes de salir cerrar para liberar puertos
 
+
     def enviar(self, mensaje):
+        
         if self.conexion:
             try:
                 if self.binario: # datos binarios // ej: imagenes
-                    datos = pickle.dumps(mensaje) # para datos binarios
-                    self.sc.sendall(struct.pack("H", len(datos))+datos) # tal vez cambiar a L // Large
+                    print("enviar binarios")
+                    datos = pickle.dumps(mensaje) # para datos binarios (serializacion de datos)
+                    print("pickled")
+                    # Send message length first
+                    message_size = struct.pack("L", len(datos)) # tamaño
+                    # envio
+                    self.sc.sendall(message_size + datos)
+                    # self.sc.sendall(struct.pack("H", len(datos))+datos) # tal vez cambiar a L // Large
                     # Envio de info local
                     self.__estado(3, "SEND: DATOS BINARIOS")
                 else:
@@ -143,10 +153,12 @@ class Servidor_TCP(object):
                 self.__estado(-1, "Problemas al enviar datos - Conexion Cerrada")
 
     def desconectar(self):
-        self.sc.close()
-        self.sock.close()
+        if self.conexion:
+            self.sc.close()
+            self.sock.close()
         self.estado   = 0  
         self.conexion = False
+        self.__estado(0, "Conexion Cerrada")
 
     # codificacion y envio de estados y mensaje
     def __estado(self, Estado, Mensaje):
@@ -156,10 +168,14 @@ class Servidor_TCP(object):
 
     # loop de lectura de mensajes
     def __th_mensajes(self):
-        while self.conexion:
+        #while self.conexion:
+        while True:
             if self.cola_mensaje.qsize() > 0:
                 codigo  = self.cola_codigo.get()
                 mensaje = self.cola_mensaje.get()
                 self.callback(codigo, mensaje)
             time.sleep(self.mensaje_velocidad)
 
+    # Callback de TH
+    def __callaback_th(self, Codigo, Mensaje):
+        print(Mensaje)
