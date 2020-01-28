@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### CLIENTE TCP VERSION 3.0                              ###
+### CLIENTE TCP VERSION 3.2                              ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 27/01/2020                                           ###
-### Reduccion de codigo                                  ###
+### 28/01/2020                                           ###
+### Reduccion de codigo y correciones                    ###
 ### Posibilidad de recibirdatos binarios                 ###
 ### Espera de 0.1 inecesaria, lectura bloqueante         ###
 ### Espera de 0.1 para escuchar mensajes entrantes       ###
@@ -16,15 +16,22 @@
 ############################################################
 
 import socket
+import queue
 import time
-from thread_admin import ThreadAdmin
+import pickle   # para utilizacion de binarios
+import struct   # para utilizacion de binarios
 import cv2
+from thread_admin import ThreadAdmin
+
 
 class Cliente_TCP(object):
     def __init__(self):
         self.soc = ""
         self.conexion       = False             # Estado de la conexion
         self.estado         = 0                 # Valor de utlimo estado
+        self.cola_codigo    = queue.Queue()     # Cola de devolucion de codigo
+        self.cola_mensaje   = queue.Queue()     # Cola de devolucion de detalle del codigo
+        self.mensaje_velocidad = 0.001          # delay en ms entre el loop de mensajes
         self.th_conexion    = ThreadAdmin()
         self.th_mensajes    = ThreadAdmin()
         #self.th_recepcion  = ''     # hilo de recepcion
@@ -34,22 +41,25 @@ class Cliente_TCP(object):
         self.callback       = ''
         self.binario        = False
 
-    def config(self, Host, Puerto, Callback, Buffer = 1024, Binario=False):
+    def config(self, Host="127.0.0.1", Puerto=50001, Callback='', Buffer=1024, Binario=False):
         self.host       = Host
         self.puerto     = int(Puerto)
         self.buffer     = Buffer
-        self.binario    = Binario       # Solo puede recibir binario, envia texto
+        self.binario    = Binario       # Solo puede recibir binario (cambia el buufer automatico), envia texto
         self.callback   = Callback      # Funcion de rellamada de estados
         #Mensajes de callback: -1 Error 0 Desconectado 1 Conectando 2 Conectado
         #                       3 Envio de Datos 4 Recepcion de Datos
         #Calback funcion ej: calback(codigo, mensaje): / calback(self, codigo, mensaje): /
+        if Binario:
+            self.buffer = 4096
+
 
     def conectar(self):
         # control de mensajes si ya se encuentra en ejecucion
-        if not self.th_cola.state:
-            self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.callback)
+        if not self.th_mensajes.state:
+            self.th_mensajes.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.__callaback_th)
         if not self.conexion:
-            self.th_conexion.start(self.__th_conectar,'','CONEXION-TCP', 10)
+            self.th_conexion.start(self.__th_conectar,'','CONEXION-TCP', 10, self.__callaback_th)
         else:
             self.__estado(-1, "Conexion actualmente establecida")
             
@@ -62,7 +72,11 @@ class Cliente_TCP(object):
             self.soc.settimeout(3)
             conectar = self.soc.connect((self.host, self.puerto)) #si tiene que usarse
             self.__estado(2, "Conexion establecida")
-            self.__recibir()
+            # ejecuta la recepcion segun binario o texto
+            if self.buffer:
+                self.__recibir_bin()    # recepcion binaria
+            else:
+                self.__recibir()        # recepcion texto
         except Exception:
             self.conexion = False
             self.__estado(-1, "Error en conexion")
@@ -102,40 +116,35 @@ class Cliente_TCP(object):
     # recepcion binaria
     def __recibir_bin(self):        
         self.soc.settimeout(3) #time out de escucha // posiblementa innecesario
-        payload_size = struct.calcsize("H")
-        print (payload_size)
+        recibido = b''  # tipo de dato binario
+        payload_size = struct.calcsize("L")
+        print ("PAYLOAD", payload_size)
+        
         while self.conexion:
-            while len(recibido) < payload_size:
-                try:
+            try:
+                # recibir el tamaño del mensaje
+                while len(recibido) < payload_size:
                     recibido += self.soc.recv(self.buffer)  # leer del puerto - posible bloqueo hasta recepcion (con timeout no hay)
-                    if recibido == b'':
-                        self.__estado(-1, "Servidor Desconectado")
-                        self.desconectar()
-                    else:
-                        # correcto
-                        packed_msg_size = recibido[:payload_size]
-                        recibido = recibido[payload_size:]
-                        msg_size = struct.unpack("H", packed_msg_size)[0]
-                        while len(recibido) < msg_size:
-                            recibido += self.soc.recv(self.buffer)  # leer del puerto - posible bloqueo hasta recepcion (con timeout no hay)
-                        frame_data = recibido[:msg_size]
-                        recibido = recibido[msg_size:]
-                        ###
-                        frame=pickle.loads(frame_data)
-                        print frame
-                        cv2.imshow('frame',frame)
-
-
-                except socket.timeout as err:
-                    pass    # time out continua con el loop
-                except Exception as err:
-                    self.__estado(-1, "Error SOC: " + str(err))
-                    self.desconectar()
-            
-
-            
-
-
+                # obtener el tamaño del mensaje
+                packed_msg_size = recibido[:payload_size]
+                recibido = recibido[payload_size:]
+                msg_size = struct.unpack("L", packed_msg_size)[0]
+                # Recibir todos los datos segun el tamaño
+                while len(recibido) < msg_size:
+                    recibido += self.soc.recv(self.buffer)  # leer del puerto - posible bloqueo hasta recepcion (con timeout no hay)
+                frame_data = recibido[:msg_size]
+                recibido = recibido[msg_size:]
+                # extrar el frame
+                frame=pickle.loads(frame_data)
+                #print (frame)
+                #cv2.imshow('frame',frame)
+                #cv2.waitKey(1)
+            except socket.timeout as err:
+                pass    # time out continua con el loop
+            except Exception as err:
+                self.__estado(-1, "Error SOC: " + str(err))
+                self.desconectar()
+        
         
     def desconectar(self):
         try:
@@ -154,9 +163,13 @@ class Cliente_TCP(object):
 
     # loop de lectura de mensajes
     def __th_mensajes(self):
-        while self.conexion:
+        while True:
             if self.cola_mensaje.qsize() > 0:
                 codigo  = self.cola_codigo.get()
                 mensaje = self.cola_mensaje.get()
                 self.callback(codigo, mensaje)
             time.sleep(self.mensaje_velocidad)
+
+    # Callback de TH
+    def __callaback_th(self, Codigo, Mensaje):
+        print(Mensaje)
