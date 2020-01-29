@@ -11,19 +11,39 @@ import cv2
 
 tcp = Servidor_TCP()
 
-# si es windows
-captura             = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-time.sleep(2)
+
+#captura = cv2.VideoCapture(0, cv2.CAP_DSHOW) # si es windows
+captura  = cv2.VideoCapture(0) # si es linux
+
+time.sleep(1)
+#while True:
+#    if captura.isOpened():
+#        print("opne")
+#        procesado, frame    = captura.read()
+#        if procesado:
+#            print("procesadi")
+#            cv2.imshow('frame',frame)
+#            cv2.waitKey(1) 
+        ## Salir con Q
+        #key = cv2.waitKey(1) & 0xFF
+        #if key == ord("q"):
+        #    break 
+    # descansar
+        #time.sleep(0.1)
+
+
 procesado, frame    = captura.read()
 captura.release()
+
 
 def fun_calback(Codigo, Mensaje):
     print("COD: ", Codigo, "Men: ", Mensaje)
     if Codigo == 2:
         #conectado
+        #time.sleep(6)
         print("conectado enviar")
-        print ("SYS: ", sys.getsizeof(frame))
-        print("FRAME: ", (frame))
+        #print ("SYS: ", sys.getsizeof(frame))
+        #print("FRAME: ", (frame))
         tcp.enviar(frame)
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.2                             ###
+### SERVIDOR TCP VERSION 3.3                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
 ### 28/01/2020                                           ###
@@ -75,7 +75,6 @@ class Servidor_TCP(object):
             intento = 0
             while intento < self.reintento:
                 self.__intento_conexion()
-                time.sleep(5)
                 if self.estado == -1:
                     intento += 1                # no pudo conectarse
                 if self.estado ==  2:
@@ -127,20 +126,16 @@ class Servidor_TCP(object):
                 self.__estado(0, "Cliente Desconectado - Reception error")
         # antes de salir cerrar para liberar puertos
 
-
     def enviar(self, mensaje):
         
         if self.conexion:
             try:
                 if self.binario: # datos binarios // ej: imagenes
-                    print("enviar binarios")
                     datos = pickle.dumps(mensaje) # para datos binarios (serializacion de datos)
-                    print("pickled")
                     # Send message length first
-                    message_size = struct.pack("L", len(datos)) # tamaño
+                    message_size = struct.pack("L", len(datos)) # tamaÃ±o
                     # envio
                     self.sc.sendall(message_size + datos)
-                    # self.sc.sendall(struct.pack("H", len(datos))+datos) # tal vez cambiar a L // Large
                     # Envio de info local
                     self.__estado(3, "SEND: DATOS BINARIOS")
                 else:
