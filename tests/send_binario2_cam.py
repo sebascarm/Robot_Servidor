@@ -7,10 +7,12 @@ sys.path.append(BASE_PATH)
 
 from componentes.servidor_tcp import Servidor_TCP
 from componentes.webcam import Webcam
+from componentes.thread_admin import ThreadAdmin
 
+th_cam = ThreadAdmin()
 tcp = Servidor_TCP()
 cam = Webcam()
-cam.config(ModoActivo=False)
+cam.config(ModoActivo=True, Ancho=320, Alto=240)
 cam.start()
 
 time.sleep(1)
@@ -18,13 +20,18 @@ time.sleep(1)
 def fun_calback(Codigo, Mensaje):
     print("COD: ", Codigo, "Men: ", Mensaje)
     if Codigo == 2:
-        while True:
-            frame = cam.read()
-            tcp.enviar(frame)
-            time.sleep(0.01)
-    
+        th_cam.start(th_camara,'','CAMARA ENVIO')
+            
 
-tcp.config(Callback=fun_calback,Binario=True)
+def th_camara():
+    time.sleep(2)
+    while True:
+        frame = cam.read()
+        tcp.enviar(frame)
+        time.sleep(0.1)
+
+
+tcp.config(Host="192.168.0.24", Callback=fun_calback,Binario=True)
 tcp.iniciar()
 
 time.sleep(1000)

@@ -5,6 +5,7 @@
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
 ### 28/01/2020                                           ###
+### (cuando queda el puerto tomada manda muchos mensajes)###
 ### Correcion en cierre de conexion y otros              ###
 ### Reduccion de codigo                                  ###
 ### Posibilidad de enviar datos binarios                 ###
@@ -127,13 +128,12 @@ class Servidor_TCP(object):
         # antes de salir cerrar para liberar puertos
 
     def enviar(self, mensaje):
-        
         if self.conexion:
             try:
                 if self.binario: # datos binarios // ej: imagenes
                     datos = pickle.dumps(mensaje) # para datos binarios (serializacion de datos)
                     # Send message length first
-                    message_size = struct.pack("L", len(datos)) # tamaño
+                    message_size = struct.pack("Q", len(datos)) # tamaño "Q" 8 bytes
                     # envio
                     self.sc.sendall(message_size + datos)
                     # Envio de info local

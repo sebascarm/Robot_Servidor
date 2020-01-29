@@ -122,14 +122,14 @@ class Cliente_TCP(object):
         
         while self.conexion:
             try:
-                # recibir el tamaño del mensaje
+                # recibir el tamaï¿½o del mensaje
                 while len(recibido) < payload_size:
                     recibido += self.soc.recv(self.buffer)  # leer del puerto - posible bloqueo hasta recepcion (con timeout no hay)
-                # obtener el tamaño del mensaje
+                # obtener el tamaï¿½o del mensaje
                 packed_msg_size = recibido[:payload_size]
                 recibido = recibido[payload_size:]
                 msg_size = struct.unpack("L", packed_msg_size)[0]
-                # Recibir todos los datos segun el tamaño
+                # Recibir todos los datos segun el tamaï¿½o
                 while len(recibido) < msg_size:
                     recibido += self.soc.recv(self.buffer)  # leer del puerto - posible bloqueo hasta recepcion (con timeout no hay)
                 frame_data = recibido[:msg_size]
