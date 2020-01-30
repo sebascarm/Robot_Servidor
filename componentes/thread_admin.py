@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### CLASE THREAD ADMIN V1.6                             ###
+### CLASE THREAD ADMIN V2.1                             ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 20/09/2019                                          ###
+### 29/01/2020                                          ###
+### Mejora en la espera de tiempo para finalizar proc   ### 
+### Opcion de parametro de fin en procesos              ### 
 ### Mas velocidad en control de thread (0.1)            ###
 ### Call back (no es obligatorio)                       ###
 ### Agregado de Totalthread para nuevos casos           ###
@@ -19,13 +21,14 @@ import signal
 import sys
 import time
 import queue
+from multiprocessing import Value # para enviar por parametro la falta de ejecucion del proceso
 
 #######################################################
 ### FUNCION PARA CAPTURAR INTERRUPCION DE TECLADO   ###
 #######################################################
 
 def keyboard_interrupt(signal, frame):
-    print(' SERVICE BREAK: Ctrl + C')
+    print('SERVICE BREAK: Ctrl + C')
     ThreadAdmin.close_all()
     print('FINISH THREADING CLOSE')
     print('EXIT PROGRAM')
@@ -67,7 +70,7 @@ class ThreadAdmin(object):
             if thread.state:
                 ThreadAdmin.close(thread)
             
-    def __init__(self, process='', argument='', name = '', time_to_kill=3, callback=''):    
+    def __init__(self, process='', argument='', name = '', time_to_kill=3, callback='', enviar_ejecucion=False):    
         # Se puede pasar el proceso al instanciar o pasar como start luego
         # Callback devuelve un codigo y un string
         # Codigos callback -1: Error, 5: Informacion
@@ -79,9 +82,11 @@ class ThreadAdmin(object):
         self.thread       = ''
         self.ident        = 0
         self.funcion_call = ''
+        self.enviar_ejecucion  = enviar_ejecucion   # opcion de envio como paramtro salida 
+        self.ejecucion    = Value('b', True)
         #arranca el star si se paso el proceso como parametro, caso contrario se espera iniciar con start
         if process != '':
-            self.start(self.process, self.argument, self.name, self.time_to_kill, callback)
+            self.start(self.process, self.argument, self.name, self.time_to_kill, callback, self.enviar_ejecucion)
 
     def callback(self, funcion_callback):
         # Callback, retorno de mensajes para log
@@ -92,23 +97,40 @@ class ThreadAdmin(object):
         else:
             self.funcion_call = self.callback_vacio
 
-    def start(self, process, argument='', name = '', time_to_kill=3, callback=''):
+    def start(self, process, argument='', name = '', time_to_kill=3, callback='', enviar_ejecucion=False):
+        # Enviar ejecunion: cuando el proceso debe termiar se envia por parametro el valor de False
+        # al procedimiento el cual debe tener la admicion de un parametro.
         if not self.state: 
             self.callback(callback)
             self.process      = process
             self.argument     = argument
             self.name         = name
             self.time_to_kill = time_to_kill    
-            if argument == '':
-                if name == '':
-                    self.thread = threading.Thread(target=self.process)
+            self.enviar_ejecucion  = enviar_ejecucion   # opcion de envio como paramtro salida 
+            if enviar_ejecucion:
+                # con envio de ejecucion
+                if argument == '':
+                    if name == '':
+                        self.thread = threading.Thread(target=self.process, args=(self.ejecucion,))
+                    else:
+                        self.thread = threading.Thread(target=self.process, name=self.name, args=(self.ejecucion,))
                 else:
-                    self.thread = threading.Thread(target=self.process, name=self.name)
+                    if name == '':
+                        self.thread = threading.Thread(target=self.process, args=(self.ejecucion, argument,))
+                    else:
+                        self.thread = threading.Thread(target=self.process, name=self.name, args=(self.ejecucion, argument,))
             else:
-                if name == '':
-                    self.thread = threading.Thread(target=self.process, args=(argument,))
+                # sin envio de ejecucion
+                if argument == '':
+                    if name == '':
+                        self.thread = threading.Thread(target=self.process)
+                    else:
+                        self.thread = threading.Thread(target=self.process, name=self.name)
                 else:
-                    self.thread = threading.Thread(target=self.process, name=self.name, args=(argument,))
+                    if name == '':
+                        self.thread = threading.Thread(target=self.process, args=(argument,))
+                    else:
+                        self.thread = threading.Thread(target=self.process, name=self.name, args=(argument,))
             ThreadAdmin.threads.append(self)
             self.thread.daemon = True 
             self.thread.start() # Python 3
@@ -126,14 +148,29 @@ class ThreadAdmin(object):
         return threading.active_count() - ThreadAdmin.thread_ini
     
     def close(self):
-        if self.state:
-            if self.__close_thread():
-                self.state = False
-                mensaje = ("TOTAL THREADS: " + str(self.total_threads())) 
-                self.funcion_call(5, mensaje)
+        # cierre individual de thread
+        if self.state and self.enviar_ejecucion:
+            # intento de cierre por mensaje
+            self.ejecucion.value = False # enviamos apagado
+            mensaje = ("THREAD ID: " + str(self.ident) + " " + str(self.name) + " END SENDED")
+            self.funcion_call(5, mensaje)
+            # esperamos a ver si muere
+            tiempo = 0
+            while tiempo < self.time_to_kill:
+                if self.state == False:
+                    break
+                time.sleep(0.1)
+                tiempo += 0.1
         else:
-            mensaje = ("THREAD ID: " + str(self.ident) + " NOT RUNNING")
-            self.funcion_call(-1, mensaje)
+            if self.state:
+                # intento de cierre normal
+                if self.__close_thread():
+                    self.state = False
+                    mensaje = ("TOTAL THREADS: " + str(self.total_threads())) 
+                    self.funcion_call(5, mensaje)
+            else:
+                mensaje = ("THREAD ID: " + str(self.ident) + " NOT RUNNING")
+                self.funcion_call(-1, mensaje)
             
     ##########################################
     ### FUNCION PARA CERRAR THREADS        ###

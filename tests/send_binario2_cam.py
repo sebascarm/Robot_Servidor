@@ -12,13 +12,14 @@ from componentes.thread_admin import ThreadAdmin
 th_cam = ThreadAdmin()
 tcp = Servidor_TCP()
 cam = Webcam()
-cam.config(ModoActivo=True, Ancho=320, Alto=240)
+cam.config(ModoActivo=True)
 cam.start()
 
 time.sleep(1)
 
 def fun_calback(Codigo, Mensaje):
-    print("COD: ", Codigo, "Men: ", Mensaje)
+    if Codigo != 3:
+        print("COD: ", Codigo, "Men: ", Mensaje)
     if Codigo == 2:
         th_cam.start(th_camara,'','CAMARA ENVIO')
             
@@ -31,7 +32,7 @@ def th_camara():
         time.sleep(0.1)
 
 
-tcp.config(Host="192.168.0.24", Callback=fun_calback,Binario=True)
+tcp.config(Host="192.168.0.34", Callback=fun_calback,Binario=True)
 tcp.iniciar()
 
 time.sleep(1000)

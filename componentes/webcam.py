@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### Clase WEBCAM V1.2                                   ###
+### Clase WEBCAM V1.3                                   ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 28/01/2020                                          ###
+### 29/01/2020                                          ###
+### Uso de nuevo Thread con salida                      ###
 ### Captura en modo activo y modo pasivo                ###
 ### Funcionamiento en windows y linux                   ###
 ### Creacion de clase                                   ###
@@ -51,7 +52,7 @@ class Webcam(object):
         (self.procesado, self.frame) = self.captura.read()
         self.activo = True
         if self.modo_activo:
-            self.th_capturar.start(self.__th_loop,'','WEBCAM', callback=self.__callaback_th)
+            self.th_capturar.start(self.__th_loop,'','WEBCAM', callback=self.__callaback_th, enviar_ejecucion=True)
 
     def stop(self):
         if not self.modo_activo:
@@ -82,8 +83,8 @@ class Webcam(object):
             self.log("Webcam no disponible", "WEBCAM")
             return False
 
-    def __th_loop(self):
-        while self.activo:
+    def __th_loop(self, run):
+        while self.activo and run.value:
             self.__captura()
             time.sleep(self.sleeptime)  # descansar
         # cierre

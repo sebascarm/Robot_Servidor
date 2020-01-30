@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.3                             ###
+### SERVIDOR TCP VERSION 3.5                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 28/01/2020                                           ###
-### (cuando queda el puerto tomada manda muchos mensajes)###
+### 29/01/2020                                           ###
+### Uso de nuevo Thread con salida                       ###
 ### Correcion en cierre de conexion y otros              ###
 ### Reduccion de codigo                                  ###
 ### Posibilidad de enviar datos binarios                 ###
@@ -62,26 +62,27 @@ class Servidor_TCP(object):
     def iniciar(self):
         # control de mensajes si ya se encuentra en ejecucion
         if not self.th_cola.state:
-            self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.__callaback_th)
+            self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.__callaback_th, True)
         # inicio de intento de escucha
         if not self.conexion:
-            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',10, self.__callaback_th)
+            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',3, self.__callaback_th, True)
         else:
             self.__estado(-1,"Conexion actualmente establecida")
             
     
     # Servidor (re-intentos de escucha de conexiones)
-    def __th_reintento_escucha(self):
+    def __th_reintento_escucha(self, run):
         if not self.conexion: 
             intento = 0
-            while intento < self.reintento:
+            while (intento < self.reintento) and run.value:
                 self.__intento_conexion()
                 if self.estado == -1:
                     intento += 1                # no pudo conectarse
                 if self.estado ==  2:
-                    self.__interno_escuchar() # conecto pasamos a escuchar y liberamos los reintentos
+                    self.__interno_escuchar(run) # conecto pasamos a escuchar y liberamos los reintentos
                     intento = 0
                     # en cuanto se corta la conexion vuelve a este loop para los reintentos de conexion
+                time.sleep(5)   # espera de 5 segundos antes de reintentar conexion
         
     # Servidor (intento de conexion)   
     def __intento_conexion(self):
@@ -108,11 +109,11 @@ class Servidor_TCP(object):
                 self.__estado(-1, "Error SOC: " + str(err))
     
     # loop de escucha de mensajes una vez establecida la conexion
-    def __interno_escuchar(self):
+    def __interno_escuchar(self, run):
         #LOOP DE ESCUCHA 
         recibido = ""
         self.sc.settimeout(3) #time out de escucha
-        while self.conexion:
+        while self.conexion and run.value:
             try:
                 recibido = self.sc.recv(self.tam_buffer)    # leer del puerto - posible bloqueo hasta recepcion
                 if recibido == b'':
@@ -162,9 +163,9 @@ class Servidor_TCP(object):
         self.cola_mensaje.put(Mensaje)
 
     # loop de lectura de mensajes
-    def __th_mensajes(self):
+    def __th_mensajes(self, run):
         #while self.conexion:
-        while True:
+        while run.value:
             if self.cola_mensaje.qsize() > 0:
                 codigo  = self.cola_codigo.get()
                 mensaje = self.cola_mensaje.get()
