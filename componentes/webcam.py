@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### Clase WEBCAM V1.3                                   ###
+### Clase WEBCAM V1.4                                   ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 29/01/2020                                          ###
+### 01/02/2020                                          ###
+### Camara sin conexion                                 ###
 ### Uso de nuevo Thread con salida                      ###
 ### Captura en modo activo y modo pasivo                ###
 ### Funcionamiento en windows y linux                   ###
@@ -100,12 +101,14 @@ class Webcam(object):
                     self.frame = tmp_frame  # tamaño original
                 else:
                     # tamaño ajustado
+                    print("ajustar tam")
                     self.frame = imutils.resize(tmp_frame, width=self.ancho, height=self.alto)
-                
+                    print("ajustar tam ok")
             else:
                 self.log("Frame Error", "WEBCAM")
         else:
-            self.log("Camara Error", "WEBCAM")
+            self.log("Camara desconectada", "WEBCAM")
+            self.activo = False # desactivamos la camara.
 
     # Log por defecto
     def __log_default(self, Texto, Modulo):

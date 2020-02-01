@@ -12,7 +12,7 @@ from componentes.thread_admin import ThreadAdmin
 th_cam = ThreadAdmin()
 tcp = Servidor_TCP()
 cam = Webcam()
-cam.config(ModoActivo=True)
+cam.config(0,ModoActivo=True)
 cam.start()
 
 time.sleep(1)
@@ -32,7 +32,7 @@ def th_camara():
         time.sleep(0.1)
 
 
-tcp.config(Host="192.168.0.34", Callback=fun_calback,Binario=True)
+tcp.config(Host="192.168.0.26", Callback=fun_calback,Binario=True)
 tcp.iniciar()
 
 time.sleep(1000)
