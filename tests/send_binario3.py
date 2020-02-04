@@ -17,7 +17,7 @@ cam.start()
 
 time.sleep(1)
 
-def fun_calback(Codigo, Mensaje):
+def fun_callback(Codigo, Mensaje):
     if Codigo != 3:
         print("COD: ", Codigo, "Men: ", Mensaje)
     if Codigo == 2:
@@ -32,7 +32,8 @@ def th_camara():
         time.sleep(0.1)
 
 
-tcp.config(Host="192.168.0.34", Callback=fun_calback,Binario=True)
+#tcp.config(Host="192.168.0.24", Callback=fun_callback,Binario=True)
+tcp.config(Host="127.0.0.1", Puerto=50002, Callback=fun_callback, Binario=True)
 tcp.iniciar()
 
 time.sleep(1000)
