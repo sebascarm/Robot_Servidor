@@ -12,7 +12,7 @@ from componentes.thread_admin import ThreadAdmin
 th_cam = ThreadAdmin()
 tcp = Servidor_TCP()
 cam = Webcam()
-cam.config(0,ModoActivo=True)
+cam.config(0,ModoActivo=False)
 cam.start()
 
 time.sleep(1)
