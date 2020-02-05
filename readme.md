@@ -1,5 +1,8 @@
-Robot Version 0.8.3
+Robot Version 0.8.4
 =====================
+* timer v1.1 (fsp y delay)
+
+
 * Correccion webcam
 
 Versiones:

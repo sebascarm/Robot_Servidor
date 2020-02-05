@@ -25,13 +25,13 @@ def fun_callback(Codigo, Mensaje):
         print("COD: ", Codigo, "Men: ", Mensaje)
     if Codigo == 2:
         pass
-        #th_cam.start(th_camara,'','CAMARA ENVIO',enviar_ejecucion=True)
+        th_cam.start(th_camara,'','CAMARA ENVIO',enviar_ejecucion=True)
             
 
 def th_camara(run):
     time.sleep(2)
     tiempo.iniciar()
-    while run.value:
+    while tcp.conexion and run.value:
         frame = cam.read()
         tcp.enviar(frame)
         print(tiempo.fps())
