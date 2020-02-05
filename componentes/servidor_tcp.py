@@ -4,7 +4,8 @@
 ### SERVIDOR TCP VERSION 3.5                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 29/01/2020                                           ###
+### 04/02/2020                                           ###
+### Correcion en salida de thread en espera de conexion  ###
 ### Uso de nuevo Thread con salida                       ###
 ### Correcion en cierre de conexion y otros              ###
 ### Reduccion de codigo                                  ###
@@ -65,7 +66,7 @@ class Servidor_TCP(object):
             self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.__callaback_th, True)
         # inicio de intento de escucha
         if not self.conexion:
-            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',3, self.__callaback_th, True)
+            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',10, self.__callaback_th, True)
         else:
             self.__estado(-1,"Conexion actualmente establecida")
             
@@ -75,21 +76,24 @@ class Servidor_TCP(object):
         if not self.conexion: 
             intento = 0
             while (intento < self.reintento) and run.value:
-                self.__intento_conexion()
+                self.__intento_conexion(run)
                 if self.estado == -1:
                     intento += 1                # no pudo conectarse
                 if self.estado ==  2:
                     self.__interno_escuchar(run) # conecto pasamos a escuchar y liberamos los reintentos
                     intento = 0
                     # en cuanto se corta la conexion vuelve a este loop para los reintentos de conexion
+                print("espera")
                 time.sleep(5)   # espera de 5 segundos antes de reintentar conexion
+                print("fin espera")
+        print("fuera")
         
     # Servidor (intento de conexion)   
-    def __intento_conexion(self):
+    def __intento_conexion(self, run):
         # INTENTO DE CONEXION
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.settimeout(5) #timeout de conexion
+            self.sock.settimeout(3) #timeout de conexion
             self.sock.bind((self.ip, self.puerto))
             self.sock.listen(self.conexiones)
             self.__estado(1, "Esperando conexion remota en: " + str(self.ip) + " " + str(self.puerto))
@@ -97,13 +101,15 @@ class Servidor_TCP(object):
             self.__estado(-1, "No es posible asignar el puerto: " +str(self.ip) + " " + str(self.puerto))
         
         #BLOQUE DE ESPERA DE CONEXION
-        while self.estado == 1:
+        while self.estado == 1 and run.value:
             try:
+                print("con")
                 self.sc, addr = self.sock.accept()  #Bloquea hasta que se conectan o por timeout
                 self.conexion = True
                 self.__estado(2, "Conexion establecida")
             except socket.timeout as err:
-                pass    # time out continua con el loop
+                print("pas")
+                #pass    # time out continua con el loop
             except Exception as err:
                 self.conexion = False
                 self.__estado(-1, "Error SOC: " + str(err))

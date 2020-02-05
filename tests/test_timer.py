@@ -13,5 +13,5 @@ tiempo.iniciar()
 while True:
     #time.sleep(0.01)
     print("FPS: ", tiempo.fps())
-    tiempo.delay(200)
+    tiempo.delay(10)
     

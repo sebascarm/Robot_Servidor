@@ -24,22 +24,25 @@ def fun_callback(Codigo, Mensaje):
     if Codigo != 3:
         print("COD: ", Codigo, "Men: ", Mensaje)
     if Codigo == 2:
-        th_cam.start(th_camara,'','CAMARA ENVIO')
+        pass
+        #th_cam.start(th_camara,'','CAMARA ENVIO',enviar_ejecucion=True)
             
 
-def th_camara():
+def th_camara(run):
     time.sleep(2)
     tiempo.iniciar()
-    while True:
+    while run.value:
         frame = cam.read()
         tcp.enviar(frame)
-        fps = tiempo.fps()
-        print(fps)
-        time.sleep(0.1)
+        print(tiempo.fps())
+        tiempo.delay(10)
 
 
-#tcp.config(Host="192.168.0.24", Callback=fun_callback,Binario=True)
-tcp.config(Host="127.0.0.1", Puerto=50001, Callback=fun_callback, Binario=True)
+tcp.config(Host="192.168.0.34", Callback=fun_callback,Binario=True)     # PC LOCAL
+#tcp.config(Host="127.0.0.1", Puerto=50001, Callback=fun_callback, Binario=True)
 tcp.iniciar()
 
-time.sleep(1000)
+time.sleep(5)
+print("fin")
+quit()
+
