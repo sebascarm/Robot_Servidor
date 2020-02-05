@@ -15,7 +15,7 @@ tcp     = Servidor_TCP()
 cam     = Webcam()
 tiempo = Timer()
 
-cam.config(0,ModoActivo=False)
+cam.config(0,ModoActivo=True)
 cam.start()
 
 time.sleep(1)
@@ -42,7 +42,5 @@ tcp.config(Host="192.168.0.34", Callback=fun_callback,Binario=True)     # PC LOC
 #tcp.config(Host="127.0.0.1", Puerto=50001, Callback=fun_callback, Binario=True)
 tcp.iniciar()
 
-time.sleep(5)
-print("fin")
-quit()
-
+time.sleep(1000)
+ThreadAdmin.close_all()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.5                             ###
+### SERVIDOR TCP VERSION 3.6                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
 ### 04/02/2020                                           ###
@@ -66,7 +66,7 @@ class Servidor_TCP(object):
             self.th_cola.start(self.__th_mensajes,'','MENSAJES-TCP', 3, self.__callaback_th, True)
         # inicio de intento de escucha
         if not self.conexion:
-            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',10, self.__callaback_th, True)
+            self.th_conexion.start(self.__th_reintento_escucha,'','SERV-TCP',3, self.__callaback_th, True)
         else:
             self.__estado(-1,"Conexion actualmente establecida")
             
@@ -83,10 +83,7 @@ class Servidor_TCP(object):
                     self.__interno_escuchar(run) # conecto pasamos a escuchar y liberamos los reintentos
                     intento = 0
                     # en cuanto se corta la conexion vuelve a este loop para los reintentos de conexion
-                print("espera")
                 time.sleep(5)   # espera de 5 segundos antes de reintentar conexion
-                print("fin espera")
-        print("fuera")
         
     # Servidor (intento de conexion)   
     def __intento_conexion(self, run):
@@ -103,13 +100,11 @@ class Servidor_TCP(object):
         #BLOQUE DE ESPERA DE CONEXION
         while self.estado == 1 and run.value:
             try:
-                print("con")
                 self.sc, addr = self.sock.accept()  #Bloquea hasta que se conectan o por timeout
                 self.conexion = True
                 self.__estado(2, "Conexion establecida")
             except socket.timeout as err:
-                print("pas")
-                #pass    # time out continua con el loop
+                pass    # time out continua con el loop
             except Exception as err:
                 self.conexion = False
                 self.__estado(-1, "Error SOC: " + str(err))

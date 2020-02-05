@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### CLASE THREAD ADMIN V2.1                             ###
+### CLASE THREAD ADMIN V2.2                             ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 29/01/2020                                          ###
+### 05/02/2020                                          ###
+### Detalle de como finializar el programa principal    ### 
 ### Mejora en la espera de tiempo para finalizar proc   ### 
 ### Opcion de parametro de fin en procesos              ### 
 ### Mas velocidad en control de thread (0.1)            ###
@@ -14,6 +15,10 @@
 ### Correcciones en close                               ###
 ### Incorporacion de parametro name                     ###
 ###########################################################
+
+#######################################################
+### FINALIZAR PROGRAMA CON: ThreadAdmin.close_all() ###
+#######################################################
 
 import threading
 import ctypes
@@ -33,9 +38,9 @@ def keyboard_interrupt(signal, frame):
     print('FINISH THREADING CLOSE')
     print('EXIT PROGRAM')
     sys.exit(0)
-    
 
 signal.signal(signal.SIGINT, keyboard_interrupt)
+
  
 ##########################################
 ### CONTROL DE ESTADO DE LOS THREADS   ###
@@ -55,7 +60,7 @@ def __threads_status():
                     thread.funcion_call(5, mensaje)
                     thread.state = False
         time.sleep(0.1)
-
+   
 ##########################################
 ### CLASE ADMINISTRADORA DE THREADS    ###
 ##########################################
@@ -132,7 +137,7 @@ class ThreadAdmin(object):
                     else:
                         self.thread = threading.Thread(target=self.process, name=self.name, args=(argument,))
             ThreadAdmin.threads.append(self)
-            self.thread.daemon = True 
+            self.thread.daemon = True
             self.thread.start() # Python 3
             #requiere iniciar para tener el id
             self.ident= self.thread.ident
