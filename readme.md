@@ -1,5 +1,6 @@
-Robot Version 0.8.4
+Robot Version 0.8.6
 =====================
+* elemento comunicacion
 * timer v1.1 (fsp y delay)
 
 
