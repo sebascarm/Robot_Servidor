@@ -13,7 +13,7 @@
 # <iD|LON|CHK|MODULO|COMANDO|VALOR> 
 # Para comprobar se utiliza el CHK = 000
 
-from componentes.servidor_tcp import Servidor_TCP
+from componentes.comunic.servidor_tcp import Servidor_TCP
 from componentes.funciones import GetChkSum
 from componentes.funciones import Val_to_text
 

@@ -5,7 +5,7 @@ import os, sys
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_PATH)
 
-from componentes.servidor_tcp import Servidor_TCP
+from componentes.comunic.servidor_tcp import Servidor_TCP
 from componentes.webcam import Webcam
 from componentes.thread_admin import ThreadAdmin
 
