@@ -1,13 +1,13 @@
 *__pycache__*
 *.pyc
 
-
+.vs/
 .vscode/
+.idea/
+
 entorno/
 ent-virtual/
 ent-virtual-win/
 ent-virtual-yog/
 
-ejemplos/
-old/
 

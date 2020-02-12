@@ -5,21 +5,21 @@ Sofware Git: https://git-scm.com
 
  - Se instala con las herramientas de unix adicionales
 
-### Ubicación
+### Ubicaciï¿½n
 - D:\QNapDrive\Programacion\Web\Git
 
 ### Comandos
 - Abrir carpeta con Gitbash
 - `git init` (iniciamos git en la carpeta)
 - `git status` (ver los archivos)
-- `git add` (agrega archivo (usar también luego de cambios en un archivo)
+- `git add` (agrega archivo (usar tambiï¿½n luego de cambios en un archivo)
 - `git add .` (agrega todos los archivos)
 - `git commit` (commit)
 - `git commit -m "descrip"` (commit)
 - `git log` (ver el estado de los commit)
 - `git restore` (restaurar un archivo dado antes del commit)
 - `git diff` (ver las diferencias de un archivo)
-- crear archivo .gitignore (el contenido será ignorado)
+- crear archivo .gitignore (el contenido serï¿½ ignorado)
 - `git branch` (muestra las ramas del programa (master por defecto)
 - `git branch nomb` (crea una rama nomb)
 - `git checkout nomb` (entra en la rama nomb)
