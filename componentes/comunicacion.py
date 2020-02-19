@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### COMUNICACION TCP VERSION 3.5                        ###
+### COMUNICACION TCP VERSION 3.6                        ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 11/02/2020                                          ###
+### 19/02/2020                                          ###
+### Correccion solo en alineacion de textos             ###
 ### Se corrige para el envio binario                    ###
 ### Se agrega el estado de la conexion                  ###
 ### correcciones varias                                 ###
@@ -31,19 +32,19 @@ from componentes.funciones import Val_to_text
 class Comunicacion:
     def __init__(self):
         """ Verificamos el estado de la conexion a travez de self.conexion"""
-        self.conexion = False  # estado de la conexion
-        self.cliente = True  # valor de cliente o servidor
-        self.binario = False  # Tipo de datos a utilizar
-        self.serv_tcp = ''  # Servidor TCP
-        self.cli_tcp = ''  # Cliente TCP
+        self.conexion = False   # estado de la conexion
+        self.cliente = True     # valor de cliente o servidor
+        self.binario = False    # Tipo de datos a utilizar
+        self.serv_tcp = ''      # Servidor TCP
+        self.cli_tcp = ''       # Cliente TCP
         self.id_recep = -1
         self.id_send = -1
         self.long_recep = "000"
         self.chk_reecp = "000"
         self.long_fija = 13
         # self.log = self.log_default
-        self.buffer = 1024  # valor por defecto
-        self.call_conex = ''  # Callback de conexion
+        self.buffer = 1024      # valor por defecto
+        self.call_conex = ''    # Callback de conexion
         self.call_mensaje = ''  # Callback de mensajes
         ## config packet
         self.inicio = "<"
@@ -134,21 +135,11 @@ class Comunicacion:
             self.call_conex(codigo, mensaje)
 
     ###########################################################
-    ### OBTENER PAQUETE                                     ###
-    ###########################################################
-    # def __obtener_paquete(self, Mensaje):
-    #    longitud     = Mensaje[4:3]
-    #    rest_paquete = Mensaje[12:]
-    #    modulo, comando, valor = rest_paquete.split("|")
-    #    return modulo, comando, valor
-
-    ###########################################################
     ### CONTROL DE CHECKSUM                                 ###
     ###########################################################
     def control_checksum(self, mensaje):
         chk_reecp = mensaje[6:9]
         # control de checksum
-        # print(self.inicio + mensaje[0:5] + "|000|" + mensaje[10:] + self.fin)
         checksum = GetChkSum(self.inicio + mensaje[0:5] + "|000|" + mensaje[10:] + self.fin)
         if chk_reecp != Val_to_text(checksum, 3):
             return False
@@ -190,7 +181,6 @@ class Comunicacion:
         if self.paquete == '':
             return ''
         else:
-            # print("PAQ: " + self.paquete)
             if self.buscar_ini:
                 # Revisamos el inicio del paquete
                 if self.paquete[:1] != self.inicio:
@@ -222,8 +212,7 @@ class Comunicacion:
                     self.call_conex(-2, "Final no econtrado en paquete actual")  # es posible eliminar este mensaje
                     if pos_fin > self.max_size:
                         self.call_conex(-2, "Final no encontrado en longitud maxima - Perdida de datos")
-                        # se supero el final sin encontrarlo
-                        # se elimina el inicio del paquete para posteriormente buscar otro inicio
+                        # se supero el final sin encontrarlo, se elimina el inicio del paquete para posteriormente buscar otro inicio
                         self.paquete = self.paquete[pos_ini + 1:]
                         self.buscar_ini = True
                         self.buscar_fin = False
@@ -248,10 +237,7 @@ class Comunicacion:
                             self.paquete = ''  # no hay mas nada
                         else:
                             # enviar el paquete y rellamarse a si mismo
-                            # print("PAQ PREVIO: " + self.paquete)
                             self.paquete = self.paquete[pos_fin + 1:]
-                            # print("PAQ POSTERIOR: " + self.paquete)
-                            # self.__contro_ini_fin('')  # se envia vacio, los datos ya estan en self.paquete (si llamamos a la funcion no se envia el paquete y genera perdidas de secuencia)
                         # Envio del paquete
                         return paq_completo  # se retorna el paquete correcto
 
