@@ -38,7 +38,7 @@ def th_camara(run):
         tiempo.delay(10)
 
 
-tcp.config("127.0.0.1", cliente=False, binario=True, callback=fun_callback)
+tcp.config("192.168.0.24", cliente=False, binario=True, callback=fun_callback)
 tcp.iniciar()
 time.sleep(1000)
 

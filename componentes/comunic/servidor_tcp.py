@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.6                             ###
+### SERVIDOR TCP VERSION 3.7                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 04/02/2020                                           ###
+### 20/02/2020                                           ###
+### Configuracion de log de TH en callback               ###
 ### Correcion en salida de thread en espera de conexion  ###
 ### Uso de nuevo Thread con salida                       ###
 ### Correcion en cierre de conexion y otros              ###
@@ -46,20 +47,21 @@ class Servidor_TCP(object):
         self.tam_buffer = ''  # el tamano se usa para la recepcion
         self.binario = False  # utilizado para enviar imagenes // se debe cambiar el tamaño del buffer
 
-        self.th_conexion = ThreadAdmin()
-        self.th_cola = ThreadAdmin()
-        self.reintento = 50
-        self.binario = False  # para enviar datos binarios
+        self.th_conexion    = ThreadAdmin()
+        self.th_cola        = ThreadAdmin()
+        self.reintento      = 50
+        self.binario        = False  # para enviar datos binarios
 
     def config(self, Host="127.0.0.1", Puerto=50001, Buffer=1024, Callback='',
                Binario=False):  # Con parametros opcionales
         self.ip = Host
         self.puerto = Puerto
         self.tam_buffer = Buffer
-        self.binario = Binario  # utilizado para enviar imagenes // solo envia binario - no recibe
+        self.binario = Binario      # utilizado para enviar imagenes // solo envia binario - no recibe
         self.callback = Callback  # Funcion de rellamada de estados
         # Mensajes de callback: 0 Desconectado| 1 Conectando| 2 Conectado
         # 3 Envio de datos| 4 Recepcion de datos|-1 Error
+
 
     def iniciar(self):
         # control de mensajes si ya se encuentra en ejecucion
@@ -175,4 +177,5 @@ class Servidor_TCP(object):
 
     # Callback de TH
     def __callaback_th(self, Codigo, Mensaje):
-        print(Mensaje)
+        self.callback(Codigo, Mensaje)
+        #print(Mensaje)

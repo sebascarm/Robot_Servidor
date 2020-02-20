@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### CLASE THREAD ADMIN V2.2                             ###
+### CLASE THREAD ADMIN V2.3                             ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 05/02/2020                                          ###
-### Detalle de como finializar el programa principal    ### 
-### Mejora en la espera de tiempo para finalizar proc   ### 
-### Opcion de parametro de fin en procesos              ### 
+### 20/02/2020                                          ###
+### Diccionario                                         ###
+### Detalle de como finializar el programa principal    ###
+### Mejora en la espera de tiempo para finalizar proc   ###
+### Opcion de parametro de fin en procesos              ###
 ### Mas velocidad en control de thread (0.1)            ###
 ### Call back (no es obligatorio)                       ###
 ### Agregado de Totalthread para nuevos casos           ###
@@ -76,9 +77,10 @@ class ThreadAdmin(object):
                 ThreadAdmin.close(thread)
             
     def __init__(self, process='', argument='', name = '', time_to_kill=3, callback='', enviar_ejecucion=False):    
-        # Se puede pasar el proceso al instanciar o pasar como start luego
-        # Callback devuelve un codigo y un string
-        # Codigos callback -1: Error, 5: Informacion
+        ''' Se puede pasar el proceso al instanciar o pasar como start luego
+            callback devuelve un codigo y un string de log (se puede configurar luego)
+            Codigos callback -1: Error, 5: Informacion
+        '''
         self.state        = False           # estado de ejecucion
         self.process      = process
         self.argument     = argument
@@ -94,17 +96,19 @@ class ThreadAdmin(object):
             self.start(self.process, self.argument, self.name, self.time_to_kill, callback, self.enviar_ejecucion)
 
     def callback(self, funcion_callback):
-        # Callback, retorno de mensajes para log
-        # se devuelven 2 parametros 
-        # Si no se especifica se utiliza print
+        ''' Callback, retorno de mensajes para log
+            se devuelven 2 parametros
+            Si no se especifica se utiliza print
+        '''
         if funcion_callback != '':
             self.funcion_call = funcion_callback
         else:
             self.funcion_call = self.callback_vacio
 
     def start(self, process, argument='', name = '', time_to_kill=3, callback='', enviar_ejecucion=False):
-        # Enviar ejecunion: cuando el proceso debe termiar se envia por parametro el valor de False
-        # al procedimiento el cual debe tener la admicion de un parametro.
+        ''' Enviar ejecunion: cuando el proceso debe termiar se envia por parametro el valor de False
+            al procedimiento el cual debe tener la admicion de un parametro.
+        '''
         if not self.state: 
             self.callback(callback)
             self.process      = process
@@ -153,7 +157,7 @@ class ThreadAdmin(object):
         return threading.active_count() - ThreadAdmin.thread_ini
     
     def close(self):
-        # cierre individual de thread
+        ''' cierre individual de thread '''
         if self.state and self.enviar_ejecucion:
             # intento de cierre por mensaje
             self.ejecucion.value = False # enviamos apagado
@@ -179,7 +183,7 @@ class ThreadAdmin(object):
             
     ##########################################
     ### FUNCION PARA CERRAR THREADS        ###
-    ##########################################        
+    ##########################################
     def __close_thread(self): 
         result = ctypes.pythonapi.PyThreadState_SetAsyncExc(self.ident, ctypes.py_object(SystemExit)) 
         if result > 1: 

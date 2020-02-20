@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### COMUNICACION TCP VERSION 3.6                        ###
+### COMUNICACION TCP VERSION 3.7                        ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 19/02/2020                                          ###
+### 20/02/2020                                          ###
+##  incorporacion de log                                ###
 ### Correccion solo en alineacion de textos             ###
 ### Se corrige para el envio binario                    ###
 ### Se agrega el estado de la conexion                  ###
@@ -70,6 +71,10 @@ class Comunicacion:
         else:
             self.serv_tcp = Servidor_TCP()
             self.serv_tcp.config(ip, puerto, 1024, self.__call_conex, binario)
+
+    def config_log(self, Log):
+        '''posibilidad de configurar clase Log(Texto, Modulo)'''
+        self.log = Log.log
 
     def config_packet(self, inicio="<", fin=">", max_size=100):
         """inicio   = caracter que define el inicio del paquete
