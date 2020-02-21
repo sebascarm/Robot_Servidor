@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### COMUNICACION TCP VERSION 3.7                        ###
+### COMUNICACION TCP VERSION 3.9                        ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
 ### 20/02/2020                                          ###
-##  incorporacion de log                                ###
+### Log default                                         ###
+### Desconexion                                         ###
+### incorporacion de log                                ###
 ### Correccion solo en alineacion de textos             ###
 ### Se corrige para el envio binario                    ###
 ### Se agrega el estado de la conexion                  ###
@@ -43,7 +45,7 @@ class Comunicacion:
         self.long_recep = "000"
         self.chk_reecp = "000"
         self.long_fija = 13
-        # self.log = self.log_default
+        self.log = self.__log_default
         self.buffer = 1024      # valor por defecto
         self.call_conex = ''    # Callback de conexion
         self.call_mensaje = ''  # Callback de mensajes
@@ -91,6 +93,13 @@ class Comunicacion:
         else:
             self.serv_tcp.iniciar()
 
+    def desconectar(self):
+        """ Cierre de conexion """
+        if self.cliente:
+            self.cli_tcp.desconectar()
+        else:
+            self.serv_tcp.desconectar()
+
     def enviar(self, mensaje):
         """ envia el mensaje establecido agregando:
             <ID|LON|CHK|-------MENSAJE-------->
@@ -110,6 +119,7 @@ class Comunicacion:
             else:
                 self.serv_tcp.enviar(texto)
 
+    # Retornos de conexion
     def __call_conex(self, codigo, mensaje):
         if codigo == 0:
             self.conexion = False
@@ -246,6 +256,9 @@ class Comunicacion:
                         # Envio del paquete
                         return paq_completo  # se retorna el paquete correcto
 
+    # Log por defecto
+    def __log_default(self, Texto, Modulo):
+        print(Texto)
 
 ###########################################################
 ### METODOS ESTATICOS                                   ###

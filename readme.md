@@ -1,9 +1,14 @@
-Robot Server Version 0.8.8
+Robot Server Version 0.8.9
 =====================
+* 21/02/2020
+    * clase Thread_Admin v2.4 (re ejecucion)
+    * clase comunicacion v3.9 (desconexion, log)
+    * clase webcam       v1.8 (desconexion) 
+    * clase servidor_TCP v3.8 (desconexion)
 * 20/02/2020
     * clase webcam       v1.7 (reintento de conexion)   
     * clase thread_admin v2.3 (diccionario)
-    * clase Servidor_TCP v3.7 (log de th en callback)
+    * clase servidor_TCP v3.7 (log de th en callback)
     * main2 (inicial)    v1.1
     * clase image_send   v1.0
     * clase comunicacion v3.7 (log)

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### Clase WEBCAM V1.7                                   ###
+### Clase WEBCAM V1.8                                   ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 19/02/2020                                          ###
-##  Revision de conexion                                ###
+### 21/02/2020                                          ###
+### Desconexion de camara                               ###
+### Revision de conexion                                ###
 ##  Estado de la camara                                 ###
 ### Camara sin conexion                                 ###
 ### Uso de nuevo Thread con salida                      ###
@@ -75,6 +76,8 @@ class Webcam(object):
         if not self.modo_activo:
             self.captura.release()
         self.activo = False
+        if self.modo_activo:
+            self.th_capturar.close()
         self.log("Webcam Stop", "WEBCAM")
    
     def read(self):
@@ -122,6 +125,8 @@ class Webcam(object):
                     # print("ajustar tam ok")
             else:
                 self.log("Frame Error", "WEBCAM")
+                self.log("Posible camara desconectada", "WEBCAM")
+                self.stop() # Frenar la camara para que no entre en loop
         else:
             self.log("Camara desconectada", "WEBCAM")
             self.activo = False # desactivamos la camara.

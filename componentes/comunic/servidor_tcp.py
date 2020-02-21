@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.7                             ###
+### SERVIDOR TCP VERSION 3.8                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
 ### 20/02/2020                                           ###
+### Revision en reconexion                               ###
 ### Configuracion de log de TH en callback               ###
 ### Correcion en salida de thread en espera de conexion  ###
 ### Uso de nuevo Thread con salida                       ###
@@ -153,11 +154,15 @@ class Servidor_TCP(object):
 
     def desconectar(self):
         if self.conexion:
+            self.conexion = False
             self.sc.close()
             self.sock.close()
-        self.estado = 0
-        self.conexion = False
-        self.__estado(0, "Conexion Cerrada")
+            self.estado = 0
+            self.__estado(0, "Conexion Cerrada")
+        else:
+            self.estado = 0
+            self.__estado(0, "Conexion previamente Cerrada")
+
 
     # codificacion y envio de estados y mensaje
     def __estado(self, Estado, Mensaje):
