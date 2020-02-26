@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### IMAGEN COMPUESTO V1.0                               ###
+### IMAGEN COMPUESTO V1.1                               ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 19/02/2020                                          ###
+### 26/02/2020                                          ###
+### Optimizacion de performance                         ###
 ### Creacion                                            ###
 ###########################################################
 
@@ -13,7 +14,6 @@ from componentes.comunicacion import Comunicacion
 from componentes.webcam import Webcam
 from componentes.thread_admin import ThreadAdmin
 from componentes.timer import Timer
-
 
 class Image_Send(object):
     def __init__(self):
@@ -25,10 +25,10 @@ class Image_Send(object):
         self.tiempo     = Timer()       # Control de fps
         self.log = self.__log_default   # Para configurar log
 
-    def config(self, host):
+    def config(self, host, port):
         self.host = host
-        self.camara.config()            # usamos los valores por defecto (El modo activo tiene menos delay)
-        self.tcp.config(host, cliente=False, binario=True, callback=self.__call_conexion)
+        self.camara.config(Ancho=200, Alto=150)
+        self.tcp.config(host, puerto=port, cliente=False, binario=True, callback=self.__call_conexion)
 
     def config_log(self, Log):
         '''posibilidad de configurar clase Log(Texto, Modulo)'''
@@ -43,11 +43,16 @@ class Image_Send(object):
         else:
             self.log("CAMARA SIN CONEXION", "IMAGE-SEND")
 
+    # Recepcion de datos de la conexion
     def __call_conexion(self, codigo, mensaje):
-        if codigo != 3:  # 3 es envio de datos
+        if codigo == 2:    # Conexion
+            self.th_cam.start(self.__th_camara, '', 'CAMARA ENVIO', callback=self.__log_th, enviar_ejecucion=True)
+        elif codigo == 4:  # Recepcion de datos
+            self.log("RECEPCION INCORRECTA - COD: " + str(codigo) + " Men: " + str(mensaje), "IMAGE-SEND")
+
+        elif codigo != 3:  # 3 es envio de datos
             self.log("COD: " + str(codigo) + " Men: " + str(mensaje), "IMAGE-SEND")
-        if codigo == 2:
-            self.th_cam.start(self.__th_camara, '', 'CAMARA ENVIO',callback=self.__log_th, enviar_ejecucion=True)
+
 
     def __th_camara(self, run):
         self.tiempo.iniciar()

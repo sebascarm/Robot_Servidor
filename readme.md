@@ -1,5 +1,12 @@
-Robot Server Version 0.8.9
+Robot Server Version 0.9.0
 =====================
+* 26/02/2020
+    * clase tts          v1.2 (mejora)
+    * clase servo        v2.0 (ad rotacion continua)
+    * clase robot_cuerpo v1.0 (creacion)
+    * clase robot_cara   v1.0 (creacion) 
+    * clase image_send   v1.1 (optimizacion)
+    * clase gestor       v1.0 (creacion)
 * 21/02/2020
     * clase Thread_Admin v2.4 (re ejecucion)
     * clase comunicacion v3.9 (desconexion, log)

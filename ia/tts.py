@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### TTS V1.1                                            ###
+### TTS V1.2                                            ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 04/01/2020                                          ###
+### 26/02/2020                                          ###
+### mejora en la reutilizacion                          ###
 ### Almacenamiento en folder temporal                   ###
 ### Reutilizacion de archivos pregrabados               ###
 ###########################################################
@@ -13,7 +14,6 @@
 import os
 import pygame
 from gtts import gTTS
-
 
 
 class TTS(object):
@@ -34,24 +34,26 @@ class TTS(object):
         if Log != '':
             self.log = Log.log
 
-    def say(self, Texto, Tmp_file="tmp_sonido.mp3"):
-        self.tmp_file = Tmp_file
-        if Tmp_file != "tmp_sonido.mp3":
+    def say(self, texto, guardar=True):
+        #type: (str, bool)-> None
+        """ guardar: opcion para almacenar archivo temporal"""
+        if guardar:
+            file = texto.replace(" ", "_") + ".mp3"
             #tratamos de cargar el archivo por si existe previamente
-            if os.path.isfile(self.tmp_folder + "/" + self.tmp_file):
-                pygame.mixer.music.load(self.tmp_folder + "/" + self.tmp_file)
-                self.log("Voz pre-grabada", "TTS")
+            if os.path.isfile(self.tmp_folder + "/" + file):
+                self.log("Voz pre-grabada: " + texto, "TTS")
             else:
-                self.tts = gTTS(Texto, lang='es-us')
-                self.tts.save(self.tmp_folder + "/" + self.tmp_file)
-                pygame.mixer.music.load(self.tmp_folder + "/" + self.tmp_file)
+                self.tts = gTTS(texto, lang='es-us')
+                self.tts.save(self.tmp_folder + "/" + file)
+            # reproducir
+            pygame.mixer.music.load(self.tmp_folder + "/" + file)
         else:
-            self.tts = gTTS(Texto, lang='es-us')
+            self.tts = gTTS(texto, lang='es-us')
             self.tts.save(self.tmp_folder + "/" + self.tmp_file)
             pygame.mixer.music.load(self.tmp_folder + "/" + self.tmp_file)
 
         #envio a Log
-        self.log(Texto, "TTS")
+        self.log(texto, "TTS")
         pygame.mixer.music.play()
         #Loop mientras esta en sonido
         while pygame.mixer.music.get_busy() == True:
