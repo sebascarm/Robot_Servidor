@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVO V2.0                                           ###
+### SERVO V2.1                                           ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 26/02/2020                                           ###
+### 17/10/2020                                           ###
+### Importacion con control de modulo                    ###
 ### Servos de rotacion continua                          ###
 ### Chanel 0 por defecto                                 ###
 ### Creacion                                             ###
@@ -15,7 +16,12 @@
 
 from __future__ import division
 import time
-import Adafruit_PCA9685
+
+try:
+    import Adafruit_PCA9685
+except:
+  print("Modulo Adafrut NO DISPONIBLE")
+  No_ADA = True
 
 class Servo(object):
     def __init__(self, channel=0):
@@ -23,10 +29,13 @@ class Servo(object):
             o se puede cambiar luego a travez config
         '''
         # Initialise the PCA9685 using the default address (0x40).
-        self.pwm = Adafruit_PCA9685.PCA9685()
+        if not No_ADA:
+            self.pwm = Adafruit_PCA9685.PCA9685()
+            self.pwm.set_pwm_freq(60)
+
         # Alternatively specify a different address and/or bus:
         #pwm = Adafruit_PCA9685.PCA9685(address=0x41, busnum=2)
-        self.pwm.set_pwm_freq(60)
+
         # datos del servo
         self.max_angle = 180  # Angulo maximo del servo
         self.servo_min = 130  # Min pulse length out of 4096 // depende del servo

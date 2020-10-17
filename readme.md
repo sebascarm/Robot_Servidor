@@ -1,5 +1,10 @@
-Robot Server Version 0.9.0
+Robot Server Version 1.0.0
 =====================
+* 17/10/2020
+    * clase main3        v1.2 (nuevo main inicial)
+    * clase servo        v2.1 (control de import)
+    * clase servidor_TCP v3.9 (metodo estatico para obt IP)
+    * Re Continuado en PC
 * 26/02/2020
     * clase tts          v1.2 (mejora)
     * clase servo        v2.0 (ad rotacion continua)

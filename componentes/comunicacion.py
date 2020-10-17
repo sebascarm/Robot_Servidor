@@ -31,7 +31,6 @@ from componentes.comunic.servidor_tcp import Servidor_TCP
 from componentes.funciones import GetChkSum
 from componentes.funciones import Val_to_text
 
-
 class Comunicacion:
     def __init__(self):
         """ Verificamos el estado de la conexion a travez de self.conexion"""

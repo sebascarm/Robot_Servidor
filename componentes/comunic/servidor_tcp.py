@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVIDOR TCP VERSION 3.8                             ###
+### SERVIDOR TCP VERSION 3.9                             ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 20/02/2020                                           ###
+### 17/10/2020                                           ###
+### Funcion estatica para obtener la IP                  ###
 ### Revision en reconexion                               ###
 ### Configuracion de log de TH en callback               ###
 ### Correcion en salida de thread en espera de conexion  ###
@@ -27,6 +28,18 @@ from componentes.thread_admin import ThreadAdmin
 
 import pickle  # para envio de binarios
 import struct  # para envio de binarios
+
+
+# Metodo estatico para obtener IP
+def obtener_ip():
+    try:
+        host_name = socket.gethostname()
+        host_ip = socket.gethostbyname(host_name)
+        print("Hostname :  ", host_name)
+        print("IP : ", host_ip)
+        return str(host_ip)
+    except:
+        print("Unable to get Hostname and IP")
 
 
 class Servidor_TCP(object):
