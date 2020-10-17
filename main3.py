@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### MAIN3 V1.2                                          ###
+### MAIN3 V1.3                                          ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
+### Uso del gestor
 ### 17/10/2020                                          ###
 ###########################################################
 
@@ -33,8 +34,8 @@ def inicio():
     voz.say("Iniciando Robot")
     gestor.config(IP, voz)
     voz.say("Esperando conexion en I P " + IP)
-    # gestor.config_log(log)
-    # gestor.iniciar()
+    gestor.config_log(log)
+    gestor.iniciar()
 
 
 if __name__ == "__main__":

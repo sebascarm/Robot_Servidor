@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVO V2.1                                           ###
+### SERVO V2.2                                           ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 17/10/2020                                           ###
+### 18/10/2020                                           ###
+### Configuracion de log y uso local                     ###
 ### Importacion con control de modulo                    ###
 ### Servos de rotacion continua                          ###
 ### Chanel 0 por defecto                                 ###
@@ -23,6 +24,10 @@ except:
   print("Modulo Adafrut NO DISPONIBLE")
   No_ADA = True
 
+
+
+
+
 class Servo(object):
     def __init__(self, channel=0):
         ''' Se puede especificar el numero de servo con channel
@@ -32,10 +37,8 @@ class Servo(object):
         if not No_ADA:
             self.pwm = Adafruit_PCA9685.PCA9685()
             self.pwm.set_pwm_freq(60)
-
         # Alternatively specify a different address and/or bus:
         #pwm = Adafruit_PCA9685.PCA9685(address=0x41, busnum=2)
-
         # datos del servo
         self.max_angle = 180  # Angulo maximo del servo
         self.servo_min = 130  # Min pulse length out of 4096 // depende del servo
@@ -48,6 +51,7 @@ class Servo(object):
         self.desp       = 0
         self.invert     = False
         self.ang_actual = 0
+        self.log        = self.log_default
 
     def config(self, channel=0, ang_max=180, ang_min=0, desp=0, invert=False):
         ''' Numero de canal del servo // Numero de servo
@@ -63,6 +67,10 @@ class Servo(object):
         self.invert = invert
         # mover a la posicion inicial
         self.angulo(0)
+
+    # posibilidad de configurar clase Log(Texto, Modulo)
+    def config_log(self, log):
+        self.log = log.log
 
     def config_continuo(self, channel=0, pulso_frenado=301, pulso_max_vel_adelante=401, pulso_max_vel_atras=221, invertir=False):
         ''' Para servos de giro continuo, remplaza el config'''
@@ -101,8 +109,11 @@ class Servo(object):
             pulso =  0
         # mover
         pulso_tot =  self.servo_mid + pulso
-        self.pwm.set_pwm(self.channel, 0, int(pulso_tot))
-
+        # envio de señal
+        if not No_ADA:
+            self.pwm.set_pwm(self.channel, 0, int(pulso_tot))
+        else:
+            self.log("MOVER - Channel: " + str(self.channel) + " pulso_tot: " + str(pulso_tot), "SERVO")
 
     def angulo(self, angle):
         ''' Especificar angulo'''
@@ -124,8 +135,17 @@ class Servo(object):
            pulso = (((self.servo_max - self.servo_mid) / 90) * (angle-90)) + self.servo_mid
         else:
            pulso = (((self.servo_mid - self.servo_min) / 90) * angle) + self.servo_min
-        self.pwm.set_pwm(self.channel, 0, int(pulso))
+        # envio de señal
+        if not No_ADA:
+            self.pwm.set_pwm(self.channel, 0, int(pulso))
+        else:
+            self.log("ANGULO - Channel: " + str(self.channel) + " pulso: " + str(pulso), "SERVO")
 
     def angulo_actual(self):
         ''' retorna el angulo actual'''
         return self.ang_actual
+
+    # log por defeto
+    def log_default(self, texto, modulo):
+        print(texto)
+
