@@ -26,8 +26,6 @@ except:
 
 
 
-
-
 class Servo(object):
     def __init__(self, channel=0):
         ''' Se puede especificar el numero de servo con channel

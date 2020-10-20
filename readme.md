@@ -1,5 +1,8 @@
-Robot Server Version 1.0.1
+Robot Server Version 1.0.2 (Robot)
 =====================
+* 20/10/2020
+    * clase gestor       v1.1 (uso de sensores)
+    * clase ultrasonido  v1.1 (control de import)
 * 17/10/2020
     * clase servo        v2.2 (uso de log y local)
     * clase servo        v2.1 (control de import)

@@ -1,18 +1,28 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################
-### Clase GESTOR DE COMUNICACION ENTRE COMP  V1.0       ###
+### Clase GESTOR DE COMUNICACION ENTRE COMP  V1.1       ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### 22/02/2020                                          ###
+### 20/10/2020                                          ###
 ### Creacion de clase                                   ###
 ###########################################################
+
+from componentes.thread_admin import ThreadAdmin
+import time
+from queue import Queue
 
 from componentes.comunicacion import Comunicacion
 from compuesto.image_send import Image_Send
 from compuesto.robot_cara import Robot_Cara
 from compuesto.robot_cuerp import Robot_Cuerpo
+# Sensores
+from sensores.ultrasonido import UltraSonido
+
 from ia.tts import TTS
+
+COLA_SONICO = Queue()
+TH_SONICO   = ThreadAdmin()
 
 class Gestor(object):
     def __init__(self):
@@ -24,8 +34,9 @@ class Gestor(object):
         self.cara       = Robot_Cara()
         self.cuerpo     = Robot_Cuerpo()
         self.voz        = ''                   # type: TTS
+        self.sonico_cent = UltraSonido()
 
-    def config (self, host, voz):
+    def config(self, host, voz):
         # type: (str, TTS)->None
         self.host = host
         # conexion del Gestor
@@ -35,7 +46,9 @@ class Gestor(object):
         self.cara.config()                          # Cara
         self.cara.config_cuerpo(self.cuerpo)        # datos del cuerpo a la cara
         self.cuerpo.config()                        # Cuerpo
-        self.voz=voz
+        self.voz = voz
+        # SENSORES
+        self.sonico_cent.config(26, 19)  # pines trigger y echo
 
     def config_log(self, Log):
         """posibilidad de configurar clase Log(Texto, Modulo)"""
@@ -57,16 +70,35 @@ class Gestor(object):
             self.voz.say("Conexion establecida")
             # Imagen send
             self.im_send.iniciar()
-        elif codigo == 4: # Recepcion de datos
-            print(mensaje)
-            modulo, comando, valor = mensaje.split("|")
-            self.acciones(modulo,comando, valor)
-        elif codigo != 3:  # 3 es envio de datos
+        elif codigo == 4:   # Recepcion de datos
+            self.recepcion_datos(mensaje)
+        elif codigo != 3:   # 3 es envio de datos
             self.log("COD: " + str(codigo) + " Men: " + str(mensaje), "GESTOR")
 
     # Log por defecto
     def __log_default(self, Texto, Modulo):
         print(Texto)
+
+    ###########################################################
+    ### PROCESAMIENTO DE DATOS RECIBIDOS                    ###
+    ###########################################################
+    def recepcion_datos(self, datos):
+        print(datos)
+        splitted = datos.split("|")
+        if len(splitted) == 1:          # acciones de un solo valor
+            self.accion_unica(datos)
+        else:
+            modulo, comando, valor = datos.split("|")
+            self.acciones(modulo, comando, valor)
+
+    ########################################
+    ### ANALISIS DE DATOS DE 1 VALOR     ###
+    ########################################
+    def accion_unica(self, comando):
+        if comando == "[SONICO-ON]":
+            TH_SONICO.start(self.hilo_sonico, COLA_SONICO, 'ENVIO_SONICO')
+        if comando == "[SONICO-OFF]":
+            TH_SONICO.close()
 
     ########################################
     ### ANALISIS DE RECEPCION DE DATOS   ###
@@ -87,4 +119,19 @@ class Gestor(object):
             self.cara.mover(int(val_x), int(val_y))
 
 
+    ########################################
+    ### HILOS                            ###
+    ########################################
+    def hilo_sonico(self, cola_tiempo):
+        tiempo = 1
 
+        while self.tcp_gestor.conexion:
+            # distancia = config.SONICO.distancia()
+            distancia = self.sonico_cent.distancia_precisa(20)
+            if distancia > -1:
+                self.tcp_gestor.enviar("[SONICO:" + str(distancia) + "]")
+            time.sleep(tiempo)
+            # revisar cola
+            if cola_tiempo.qsize() > 0:
+                tiempo = float(cola_tiempo.get())
+        print("EXIT SEND DISTANCIA")
