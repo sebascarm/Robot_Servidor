@@ -1,5 +1,5 @@
 ###########################################################
-### CLASE ULTRASONIDO V1.1                              ###
+### CLASE ULTRASONIDO V1.2                              ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
 ### 20/10/2020                                          ###
@@ -8,6 +8,7 @@
 
 try:
     import RPi.GPIO as GPIO
+    NO_ULTRA = False
 except:
     print("Modulo Ultrasonico NO DISPONIBLE")
     NO_ULTRA = True

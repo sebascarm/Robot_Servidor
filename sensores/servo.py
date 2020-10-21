@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 ############################################################
-### SERVO V2.2                                           ###
+### SERVO V2.3                                           ###
 ############################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                      ###
-### 18/10/2020                                           ###
+### 20/10/2020                                           ###
+### bug fix                                              ###
 ### Configuracion de log y uso local                     ###
 ### Importacion con control de modulo                    ###
 ### Servos de rotacion continua                          ###
@@ -19,7 +20,8 @@ from __future__ import division
 import time
 
 try:
-    import Adafruit_PCA9685
+  import Adafruit_PCA9685
+  No_ADA = False
 except:
   print("Modulo Adafrut NO DISPONIBLE")
   No_ADA = True

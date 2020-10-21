@@ -4,8 +4,9 @@
 ### MAIN3 V1.3                                          ###
 ###########################################################
 ### ULTIMA MODIFICACION DOCUMENTADA                     ###
-### Uso del gestor
-### 17/10/2020                                          ###
+### 20/10/2020                                          ###
+### Uso de Ip Robot                                     ###
+### Uso del gestor                                      ###
 ###########################################################
 
 import time
@@ -26,8 +27,9 @@ voz.config(Log=log)
 
 # im_send = Image_Send()
 gestor = Gestor()
-IP = obtener_ip()
 
+# IP = obtener_ip()
+IP = "192.168.0.24"
 
 def inicio():
     log.log("Main start", "MAIN")

@@ -1,6 +1,9 @@
-Robot Server Version 1.0.2 (Robot)
+Robot Server Version 1.0.3 (Robot)
 =====================
 * 20/10/2020
+    * clase ultrasonido  v1.2 (bug fix)
+    * clase servo        v2.3 (bug fix)
+    * clase main3        v1.4 (uso de ip robot)
     * clase gestor       v1.1 (uso de sensores)
     * clase ultrasonido  v1.1 (control de import)
 * 17/10/2020
@@ -103,6 +106,8 @@ Versiones
 ---------
 
 * Python 3.6.9 (Linux PC)
+# pip list  # Paquetes instalados
+
 ```
 beautifulsoup4        4.8.2         #gTTS     
 certifi               2019.11.28    #gTTS     
@@ -128,7 +133,13 @@ urllib3               1.25.7        #gTTS
 
 Entrar en la terminal
 =====================
-ssh pi@192.168.0.26
+ssh pi@192.168.0.24
+cd robot/servidor_1.0
+# source ~/.profile     # cargar perfil primero // para que cargue el GPIO (probable no necesario)
+workon entorno-cv   # Activar el enotorno virtual
+python main3.py
+
+deactivate          # salir del entorno virtual
 
 ### Ejecutar en terminal en folder del ejecutable (test1 = nombre de archivo posiblemente)
 ```
@@ -188,6 +199,12 @@ workon entorno-cv   # Activar el enotorno virtual
 pip list --format=columns   # vemos los elementos instalados
 
 ```
+---------------
+Instalar GPIO
+===============
+https://www.pyimagesearch.com/2016/05/02/accessing-rpi-gpio-and-gpio-zero-with-opencv-python/
+pip install RPi.GPIO    # instalar con pip para que lo tome el entorno virtual
+
 ---------------
 Instalar gTTS
 ===============
